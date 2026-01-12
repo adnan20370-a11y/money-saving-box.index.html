@@ -86,11 +86,28 @@
       border: 1px solid #ccc; margin: 5px; width: 150px; }
   #searchContainer { margin-bottom: 15px; }
 
+  /* Instruction box */
+  #instructions {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      max-width: 300px;
+      color: #333;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      text-align: center;
+  }
+  body.dark #instructions {
+      background: #444;
+      color: #f4f1ec;
+      box-shadow: 0 2px 5px rgba(255,255,255,0.2);
+  }
+
   @media print {
       body { background: white; padding: 0; }
       .grid { background: none; padding: 0; gap: 5px; }
       .cell { box-shadow: none; border: 1px solid #000; padding: 10px; transform: none !important; }
-      button, .progress-container, .goal-container, .total, #searchContainer, #themeToggle, #goalInput, #todaySaved { display: none; }
+      button, .progress-container, .goal-container, .total, #searchContainer, #themeToggle, #goalInput, #todaySaved, #instructions { display: none; }
   }
 </style>
 </head>
@@ -129,6 +146,12 @@
         <button onclick="undoLast()">Undo Last</button>
         <button id="themeToggle" onclick="toggleTheme()">Toggle Dark/Light Mode</button>
         <button onclick="printSheet()">Print Sheet</button>
+
+        <!-- Instructions box below buttons -->
+        <div id="instructions">
+            <strong>How to use / What to do?</strong><br>
+            Keep your money in a home bank (like a mud bank or plastic bank) and select the amount in this website which you have saved in your bank.
+        </div>
     </div>
 </div>
 
@@ -141,41 +164,24 @@ let lastSavedIndex = null;
 
 // DAILY TRACKING
 let todayData = JSON.parse(localStorage.getItem("todayData")) || { date: new Date().toDateString(), saved: 0 };
-
-// Reset daily saved amount if date changed
-function checkDailyReset() {
-    const today = new Date().toDateString();
-    if(todayData.date !== today){
-        todayData.date = today;
-        todayData.saved = 0;
-        localStorage.setItem("todayData", JSON.stringify(todayData));
-    }
+if(todayData.date !== new Date().toDateString()){
+    todayData.date = new Date().toDateString();
+    todayData.saved = 0;
+    localStorage.setItem("todayData", JSON.stringify(todayData));
 }
-checkDailyReset();
-
-function updateTodayAmount(){
-    document.getElementById("todayAmount").textContent = todayData.saved;
-}
+function updateTodayAmount(){ document.getElementById("todayAmount").textContent = todayData.saved; }
 
 // GRID GENERATION – WEIGHTED AMOUNTS
 function generateAmounts() {
     amounts = [];
     let sum = 0;
-
     while (sum < TOTAL_GOAL) {
         let value;
         let r = Math.random();
-
-        if (r < 0.7) {
-            value = Math.floor(Math.random() * ((200-10)/10 +1))*10 + 10;
-        } else if (r < 0.9) {
-            value = Math.floor(Math.random() * ((350-210)/10 +1))*10 + 210;
-        } else {
-            value = Math.floor(Math.random() * ((500-360)/10 +1))*10 + 360;
-        }
-
+        if (r < 0.7) { value = Math.floor(Math.random() * ((200-10)/10 +1))*10 + 10; }
+        else if (r < 0.9) { value = Math.floor(Math.random() * ((350-210)/10 +1))*10 + 210; }
+        else { value = Math.floor(Math.random() * ((500-360)/10 +1))*10 + 360; }
         if (sum + value > TOTAL_GOAL) value = TOTAL_GOAL - sum;
-
         amounts.push(value);
         sum += value;
     }
@@ -185,14 +191,12 @@ function generateAmounts() {
 function renderGrid() {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
-
     amounts.forEach((value,index)=>{
         if(filteredIndexes && !filteredIndexes.includes(index)) return;
         const div=document.createElement("div");
         div.className="cell";
         div.textContent=value;
         if(saved.includes(index)) div.classList.add("saved");
-
         div.onclick=()=>{
             if(!saved.includes(index)){
                 saved.push(index);
@@ -225,9 +229,7 @@ function updateUI() {
 // RESET / UNDO / PRINT / SEARCH / THEME
 function resetSavings(){
     if(confirm("Reset all savings?")){
-        saved=[];
-        lastSavedIndex=null;
-        todayData.saved=0;
+        saved=[]; lastSavedIndex=null; todayData.saved=0;
         localStorage.removeItem("savedAmounts");
         localStorage.setItem("todayData",JSON.stringify(todayData));
         updateUI();
@@ -261,13 +263,10 @@ function toggleTheme(){ document.body.classList.toggle("dark"); }
 function updateGoal(){
     const input=parseInt(document.getElementById("goalInput").value);
     if(isNaN(input) || input<1000){alert("Enter 1000 or higher"); return;}
-    TOTAL_GOAL=input;
-    saved=[];
-    todayData.saved=0;
+    TOTAL_GOAL=input; saved=[]; todayData.saved=0;
     localStorage.removeItem("savedAmounts");
     localStorage.setItem("todayData",JSON.stringify(todayData));
-    generateAmounts();
-    updateUI();
+    generateAmounts(); updateUI();
 }
 
 // INIT
@@ -277,5 +276,6 @@ updateUI();
 
 </body>
 </html>
+
 
 
