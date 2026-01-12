@@ -2,268 +2,280 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Money Saving Box – 1 Lakh Challenge</title>
+<title>Money Saving Box – Weighted Amounts</title>
 <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background: #f4f1ec;
-        margin: 0;
-        padding: 20px;
-        text-align: center;
-    }
+  body {
+      font-family: 'Arial', sans-serif;
+      background: #f4f1ec;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
+      background: #1e1e1e;
+      color: #f4f1ec;
+  }
+  h1 { margin-bottom: 5px; color: #3a1f12; }
+  body.dark h1, body.dark .goal-container, body.dark .total, body.dark #todaySaved { color: #f4f1ec; }
+  .goal-container { font-size: 18px; margin-bottom: 15px; }
+  .progress-container {
+      width: 90%; max-width: 600px; margin: 10px auto 10px;
+      background: #ddd; border-radius: 20px; overflow: hidden; height: 20px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #4caf50, #81c784);
+      transition: width 0.5s ease;
+  }
+  .total { margin-bottom: 10px; font-weight: bold; }
+  #todaySaved { margin-bottom: 20px; font-weight: bold; }
 
-    h1 {
-        margin-bottom: 5px;
-        color: #3a1f12;
-    }
+  /* Flex container for grid + buttons */
+  .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+  }
 
-    .goal {
-        font-size: 18px;
-        margin-bottom: 15px;
-    }
+  .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px; max-width: 600px; background: #6b3e26;
+      padding: 15px; border-radius: 10px;
+  }
+  body.dark .grid { background: #333; }
 
-    .progress-container {
-        width: 90%;
-        max-width: 600px;
-        margin: 10px auto 25px;
-        background: #ddd;
-        border-radius: 20px;
-        overflow: hidden;
-        height: 20px;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    }
+  .cell {
+      background: #fff; border: 2px solid #3a1f12; padding: 15px 5px;
+      cursor: pointer; font-weight: bold; border-radius: 5px; user-select: none;
+      transition: 0.3s; position: relative; box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  }
+  body.dark .cell {
+      background: #555; color: #f4f1ec; border-color: #aaa;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .cell:hover { transform: scale(1.05); background: #f0e6dc; }
+  body.dark .cell:hover { background: #666; }
+  .cell.saved {
+      background: #c0392b !important; color: white; text-decoration: none;
+      cursor: not-allowed; transform: scale(1); box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+  }
 
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #4caf50, #81c784);
-        transition: width 0.5s ease;
-    }
+  /* Button column */
+  .button-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      min-width: 150px;
+  }
+  .button-column button { width: 100%; }
 
-    .total {
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
+  button {
+      padding: 10px 20px; font-size: 16px; cursor: pointer;
+      border: none; background: #b71c1c; color: white; border-radius: 5px;
+      transition: 0.3s;
+  }
+  button:hover { background: #8e0000; }
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-        gap: 8px;
-        max-width: 900px;
-        margin: auto;
-        background: #6b3e26;
-        padding: 15px;
-        border-radius: 10px;
-    }
+  input[type="number"] { padding: 8px; font-size: 16px; border-radius: 5px;
+      border: 1px solid #ccc; margin: 5px; width: 150px; }
+  #searchContainer { margin-bottom: 15px; }
 
-    .cell {
-        background: #fff;
-        border: 2px solid #3a1f12;
-        padding: 15px 5px;
-        cursor: pointer;
-        font-weight: bold;
-        border-radius: 5px;
-        user-select: none;
-        transition: 0.3s;
-        position: relative;
-        box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-    }
-
-    .cell:hover {
-        transform: scale(1.05);
-        background: #f0e6dc;
-    }
-
-    .cell.saved {
-        background: #c8e6c9;
-        color: #555;
-        text-decoration: line-through;
-        cursor: not-allowed;
-        transform: scale(1);
-        box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-    }
-
-    button {
-        margin: 10px 5px;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border: none;
-        background: #b71c1c;
-        color: white;
-        border-radius: 5px;
-        transition: 0.3s;
-    }
-
-    button:hover {
-        background: #8e0000;
-    }
-
-    input[type="number"] {
-        padding: 8px;
-        font-size: 16px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        margin: 5px;
-        width: 150px;
-    }
-
-    @media print {
-        body {
-            background: white;
-            padding: 0;
-        }
-        .grid {
-            background: none;
-            padding: 0;
-            gap: 5px;
-        }
-        .cell {
-            box-shadow: none;
-            border: 1px solid #000;
-            padding: 10px;
-            transform: none !important;
-        }
-        button, .progress-container, .goal, .total, #searchContainer {
-            display: none;
-        }
-    }
+  @media print {
+      body { background: white; padding: 0; }
+      .grid { background: none; padding: 0; gap: 5px; }
+      .cell { box-shadow: none; border: 1px solid #000; padding: 10px; transform: none !important; }
+      button, .progress-container, .goal-container, .total, #searchContainer, #themeToggle, #goalInput, #todaySaved { display: none; }
+  }
 </style>
 </head>
 <body>
 
 <h1>💰 Money Saving Box</h1>
-<div class="goal">Target: ৳100,000</div>
 
+<div class="goal-container">
+  Goal: ৳<input type="number" id="goalInput" value="100000" min="1000" step="1000">
+  <button onclick="updateGoal()">Set Goal</button>
+</div>
+
+<!-- Main Goal Progress -->
 <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
 </div>
 
 <div class="total">
-    Saved: ৳<span id="savedAmount">0</span> / ৳100,000
+    Saved: ৳<span id="savedAmount">0</span> / ৳<span id="displayGoal">100000</span>
 </div>
 
-<!-- Search -->
+<div id="todaySaved">
+    Today Total Saved: ৳<span id="todayAmount">0</span>
+</div>
+
 <div id="searchContainer">
     <input type="number" id="searchAmount" placeholder="Search Amount">
     <button onclick="searchAmount()">Search</button>
 </div>
 
-<div class="grid" id="grid"></div>
-
-<button onclick="resetSavings()">Reset</button>
-<button onclick="printSheet()">Print Sheet</button>
+<!-- Flex container: grid + buttons -->
+<div class="main-container">
+    <div class="grid" id="grid"></div>
+    <div class="button-column">
+        <button onclick="resetSavings()">Reset</button>
+        <button onclick="undoLast()">Undo Last</button>
+        <button id="themeToggle" onclick="toggleTheme()">Toggle Dark/Light Mode</button>
+        <button onclick="printSheet()">Print Sheet</button>
+    </div>
+</div>
 
 <script>
-const TOTAL_GOAL = 100000;
-const MIN = 10;
-const MAX_UNDER_300 = 290;
-const MAX_OVER_300 = 500;
-
+let TOTAL_GOAL = 100000;
 let amounts = [];
 let saved = JSON.parse(localStorage.getItem("savedAmounts")) || [];
-let filteredIndexes = null; // stores search filter
+let filteredIndexes = null;
+let lastSavedIndex = null;
 
+// DAILY TRACKING
+let todayData = JSON.parse(localStorage.getItem("todayData")) || { date: new Date().toDateString(), saved: 0 };
+
+// Reset daily saved amount if date changed
+function checkDailyReset() {
+    const today = new Date().toDateString();
+    if(todayData.date !== today){
+        todayData.date = today;
+        todayData.saved = 0;
+        localStorage.setItem("todayData", JSON.stringify(todayData));
+    }
+}
+checkDailyReset();
+
+function updateTodayAmount(){
+    document.getElementById("todayAmount").textContent = todayData.saved;
+}
+
+// GRID GENERATION – WEIGHTED AMOUNTS
 function generateAmounts() {
+    amounts = [];
     let sum = 0;
+
     while (sum < TOTAL_GOAL) {
         let value;
-        if (Math.random() < 0.8) {
-            value = Math.floor(Math.random() * ((MAX_UNDER_300 - MIN) / 10 + 1)) * 10 + MIN;
+        let r = Math.random();
+
+        if (r < 0.7) {
+            value = Math.floor(Math.random() * ((200-10)/10 +1))*10 + 10;
+        } else if (r < 0.9) {
+            value = Math.floor(Math.random() * ((350-210)/10 +1))*10 + 210;
         } else {
-            value = Math.floor(Math.random() * ((MAX_OVER_300 - 300) / 10 + 1)) * 10 + 300;
+            value = Math.floor(Math.random() * ((500-360)/10 +1))*10 + 360;
         }
 
-        if (sum + value > TOTAL_GOAL) {
-            value = TOTAL_GOAL - sum;
-        }
+        if (sum + value > TOTAL_GOAL) value = TOTAL_GOAL - sum;
+
         amounts.push(value);
         sum += value;
     }
 }
 
+// RENDER GRID
 function renderGrid() {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
 
-    amounts.forEach((value, index) => {
-        if (filteredIndexes && !filteredIndexes.includes(index)) return; // skip non-matching
+    amounts.forEach((value,index)=>{
+        if(filteredIndexes && !filteredIndexes.includes(index)) return;
+        const div=document.createElement("div");
+        div.className="cell";
+        div.textContent=value;
+        if(saved.includes(index)) div.classList.add("saved");
 
-        const div = document.createElement("div");
-        div.className = "cell";
-        div.textContent = value;
-
-        if (saved.includes(index)) {
-            div.classList.add("saved");
-        }
-
-        div.onclick = () => {
-            if (!saved.includes(index)) {
+        div.onclick=()=>{
+            if(!saved.includes(index)){
                 saved.push(index);
-                localStorage.setItem("savedAmounts", JSON.stringify(saved));
+                lastSavedIndex=index;
+                todayData.saved += value;
+                localStorage.setItem("savedAmounts",JSON.stringify(saved));
+                localStorage.setItem("todayData",JSON.stringify(todayData));
                 updateUI();
                 div.classList.add("saved");
-                div.style.transform = "scale(1.1)";
-                setTimeout(() => div.style.transform = "scale(1)", 200);
-
-                // after click, show all again
-                filteredIndexes = null;
+                div.style.transform="scale(1.1)";
+                setTimeout(()=>div.style.transform="scale(1)",200);
+                filteredIndexes=null;
                 updateUI();
             }
         };
-
         grid.appendChild(div);
     });
 }
 
+// UPDATE UI
 function updateUI() {
-    const savedTotal = saved.reduce((sum, i) => sum + amounts[i], 0);
+    const savedTotal = saved.reduce((sum,i)=>sum+amounts[i],0);
     document.getElementById("savedAmount").textContent = savedTotal;
-
-    const progress = (savedTotal / TOTAL_GOAL) * 100;
-    document.getElementById("progressBar").style.width = progress + "%";
-
+    document.getElementById("displayGoal").textContent = TOTAL_GOAL;
+    document.getElementById("progressBar").style.width = (savedTotal/TOTAL_GOAL*100)+"%";
     renderGrid();
+    updateTodayAmount();
 }
 
-function resetSavings() {
-    if (confirm("Reset all savings?")) {
-        saved = [];
+// RESET / UNDO / PRINT / SEARCH / THEME
+function resetSavings(){
+    if(confirm("Reset all savings?")){
+        saved=[];
+        lastSavedIndex=null;
+        todayData.saved=0;
         localStorage.removeItem("savedAmounts");
+        localStorage.setItem("todayData",JSON.stringify(todayData));
         updateUI();
     }
 }
-
-// --- PRINT FUNCTION ---
-function printSheet() {
-    window.print();
+function undoLast(){
+    if(lastSavedIndex===null){alert("No action to undo."); return;}
+    const idx=saved.indexOf(lastSavedIndex);
+    if(idx!==-1){
+        todayData.saved -= amounts[lastSavedIndex];
+        if(todayData.saved <0) todayData.saved =0;
+        saved.splice(idx,1);
+        localStorage.setItem("savedAmounts",JSON.stringify(saved));
+        localStorage.setItem("todayData",JSON.stringify(todayData));
+        lastSavedIndex=null;
+        updateUI();
+        alert("Last action undone!");
+    }
 }
+function printSheet(){ window.print(); }
+function searchAmount(){
+    const val=parseInt(document.getElementById("searchAmount").value);
+    if(isNaN(val)){alert("Enter valid number"); return;}
+    filteredIndexes=amounts.reduce((arr,v,i)=>{ if(v===val) arr.push(i); return arr; },[]);
+    if(filteredIndexes.length===0){alert("Amount not found"); filteredIndexes=null;}
+    updateUI();
+}
+function toggleTheme(){ document.body.classList.toggle("dark"); }
 
-// --- SEARCH FUNCTION ---
-function searchAmount() {
-    const searchValue = parseInt(document.getElementById("searchAmount").value);
-    if (isNaN(searchValue)) {
-        alert("Enter a valid number to search.");
-        return;
-    }
-
-    filteredIndexes = amounts.reduce((arr, val, idx) => {
-        if (val === searchValue) arr.push(idx);
-        return arr;
-    }, []);
-
-    if (filteredIndexes.length === 0) {
-        alert("Amount not found.");
-        filteredIndexes = null;
-    }
-
+// UPDATE GOAL
+function updateGoal(){
+    const input=parseInt(document.getElementById("goalInput").value);
+    if(isNaN(input) || input<1000){alert("Enter 1000 or higher"); return;}
+    TOTAL_GOAL=input;
+    saved=[];
+    todayData.saved=0;
+    localStorage.removeItem("savedAmounts");
+    localStorage.setItem("todayData",JSON.stringify(todayData));
+    generateAmounts();
     updateUI();
 }
 
+// INIT
 generateAmounts();
 updateUI();
 </script>
 
 </body>
 </html>
+
 
