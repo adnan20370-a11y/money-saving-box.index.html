@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Money Saving Box – 1 Lakh Challenge</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f1ec;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+    }
+
+    h1 {
+        margin-bottom: 5px;
+    }
+
+    .goal {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .progress-container {
+        width: 90%;
+        max-width: 600px;
+        margin: 10px auto 25px;
+        background: #ddd;
+        border-radius: 20px;
+        overflow: hidden;
+        height: 20px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #4caf50;
+        transition: width 0.3s;
+    }
+
+    .total {
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 8px;
+        max-width: 900px;
+        margin: auto;
+        background: #6b3e26;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .cell {
+        background: #fff;
+        border: 2px solid #3a1f12;
+        padding: 15px 5px;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 5px;
+        user-select: none;
+        transition: 0.2s;
+    }
+
+    .cell:hover {
+        background: #f0e6dc;
+    }
+
+    .cell.saved {
+        background: #c8e6c9;
+        color: #555;
+        text-decoration: line-through;
+        cursor: not-allowed;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        background: #b71c1c;
+        color: white;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        background: #8e0000;
+    }
+</style>
+</head>
+<body>
+
+<h1>💰 Money Saving Box</h1>
+<div class="goal">Target: ৳100,000</div>
+
+<div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="total">
+    Saved: ৳<span id="savedAmount">0</span> / ৳100,000
+</div>
+
+<div class="grid" id="grid"></div>
+
+<button onclick="resetSavings()">Reset</button>
+
+<script>
+const TOTAL_GOAL = 100000;
+const MIN = 10;
+const MAX = 500;
+
+let amounts = [];
+let saved = JSON.parse(localStorage.getItem("savedAmounts")) || [];
+
+function generateAmounts() {
+    let sum = 0;
+    while (sum < TOTAL_GOAL) {
+        let value = Math.floor(Math.random() * ((MAX - MIN) / 10 + 1)) * 10 + MIN;
+        if (sum + value > TOTAL_GOAL) {
+            value = TOTAL_GOAL - sum;
+        }
+        amounts.push(value);
+        sum += value;
+    }
+}
+
+function renderGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    amounts.forEach((value, index) => {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.textContent = value;
+
+        if (saved.includes(index)) {
+            div.classList.add("saved");
+        }
+
+        div.onclick = () => {
+            if (!saved.includes(index)) {
+                saved.push(index);
+                localStorage.setItem("savedAmounts", JSON.stringify(saved));
+                updateUI();
+            }
+        };
+
+        grid.appendChild(div);
+    });
+}
+
+function updateUI() {
+    const savedTotal = saved.reduce((sum, i) => sum + amounts[i], 0);
+    document.getElementById("savedAmount").textContent = savedTotal;
+
+    const progress = (savedTotal / TOTAL_GOAL) * 100;
+    document.getElementById("progressBar").style.width = progress + "%";
+
+    renderGrid();
+}
+
+function resetSavings() {
+    if (confirm("Reset all savings?")) {
+        saved = [];
+        localStorage.removeItem("savedAmounts");
+        updateUI();
+    }
+}
+
+generateAmounts();
+updateUI();
+</script>
+
+</body>
+</html>
