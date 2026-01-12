@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Money Saving Box – 1 Lakh Challenge</title>
 <style>
-    /* --- BODY & GENERAL --- */
     body {
         font-family: 'Arial', sans-serif;
         background: #f4f1ec;
@@ -46,7 +45,6 @@
         font-weight: bold;
     }
 
-    /* --- GRID / BOXES --- */
     .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -101,7 +99,15 @@
         background: #8e0000;
     }
 
-    /* --- PRINT STYLES --- */
+    input[type="number"] {
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin: 5px;
+        width: 150px;
+    }
+
     @media print {
         body {
             background: white;
@@ -118,7 +124,7 @@
             padding: 10px;
             transform: none !important;
         }
-        button, .progress-container, .goal, .total {
+        button, .progress-container, .goal, .total, #searchContainer {
             display: none;
         }
     }
@@ -137,6 +143,12 @@
     Saved: ৳<span id="savedAmount">0</span> / ৳100,000
 </div>
 
+<!-- Search -->
+<div id="searchContainer">
+    <input type="number" id="searchAmount" placeholder="Search Amount">
+    <button onclick="searchAmount()">Search</button>
+</div>
+
 <div class="grid" id="grid"></div>
 
 <button onclick="resetSavings()">Reset</button>
@@ -145,15 +157,23 @@
 <script>
 const TOTAL_GOAL = 100000;
 const MIN = 10;
-const MAX = 500;
+const MAX_UNDER_300 = 290;
+const MAX_OVER_300 = 500;
 
 let amounts = [];
 let saved = JSON.parse(localStorage.getItem("savedAmounts")) || [];
+let filteredIndexes = null; // stores search filter
 
 function generateAmounts() {
     let sum = 0;
     while (sum < TOTAL_GOAL) {
-        let value = Math.floor(Math.random() * ((MAX - MIN) / 10 + 1)) * 10 + MIN;
+        let value;
+        if (Math.random() < 0.8) {
+            value = Math.floor(Math.random() * ((MAX_UNDER_300 - MIN) / 10 + 1)) * 10 + MIN;
+        } else {
+            value = Math.floor(Math.random() * ((MAX_OVER_300 - 300) / 10 + 1)) * 10 + 300;
+        }
+
         if (sum + value > TOTAL_GOAL) {
             value = TOTAL_GOAL - sum;
         }
@@ -167,6 +187,8 @@ function renderGrid() {
     grid.innerHTML = "";
 
     amounts.forEach((value, index) => {
+        if (filteredIndexes && !filteredIndexes.includes(index)) return; // skip non-matching
+
         const div = document.createElement("div");
         div.className = "cell";
         div.textContent = value;
@@ -180,9 +202,13 @@ function renderGrid() {
                 saved.push(index);
                 localStorage.setItem("savedAmounts", JSON.stringify(saved));
                 updateUI();
-                div.classList.add("saved"); // animation effect
+                div.classList.add("saved");
                 div.style.transform = "scale(1.1)";
                 setTimeout(() => div.style.transform = "scale(1)", 200);
+
+                // after click, show all again
+                filteredIndexes = null;
+                updateUI();
             }
         };
 
@@ -213,9 +239,31 @@ function printSheet() {
     window.print();
 }
 
+// --- SEARCH FUNCTION ---
+function searchAmount() {
+    const searchValue = parseInt(document.getElementById("searchAmount").value);
+    if (isNaN(searchValue)) {
+        alert("Enter a valid number to search.");
+        return;
+    }
+
+    filteredIndexes = amounts.reduce((arr, val, idx) => {
+        if (val === searchValue) arr.push(idx);
+        return arr;
+    }, []);
+
+    if (filteredIndexes.length === 0) {
+        alert("Amount not found.");
+        filteredIndexes = null;
+    }
+
+    updateUI();
+}
+
 generateAmounts();
 updateUI();
 </script>
 
 </body>
 </html>
+
