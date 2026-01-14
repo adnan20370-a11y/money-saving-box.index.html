@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Money Saving Box – Fixed</title>
+<title>Money Saving Box – Fixed + Search</title>
 <style>
 body{
     font-family: Arial, sans-serif;
@@ -13,6 +13,7 @@ body{
 }
 body.dark{background:#1e1e1e;color:#f4f1ec;}
 h1{color:#3a1f12}
+
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
@@ -23,6 +24,7 @@ h1{color:#3a1f12}
     padding:15px;
     border-radius:10px;
 }
+
 .cell{
     background:#fff;
     border:2px solid #3a1f12;
@@ -36,6 +38,7 @@ h1{color:#3a1f12}
     color:white;
     cursor:not-allowed;
 }
+
 .progress-container{
     width:90%;
     max-width:600px;
@@ -50,6 +53,7 @@ h1{color:#3a1f12}
     background:linear-gradient(90deg,#4caf50,#81c784);
     border-radius:20px;
 }
+
 button{
     padding:10px 15px;
     margin:5px;
@@ -59,21 +63,36 @@ button{
     color:white;
     border-radius:5px;
 }
+
+input{
+    padding:8px;
+    font-size:16px;
+    border-radius:5px;
+    border:1px solid #ccc;
+    width:150px;
+}
 </style>
 </head>
 <body>
 
 <h1>💰 Money Saving Box</h1>
 
-Goal: ৳<input type="number" id="goalInput" value="100000">
+Goal: ৳<input type="number" id="goalInput">
 <button onclick="updateGoal()">Set Goal</button>
 
 <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<div>Saved: ৳<span id="savedAmount">0</span> / ৳<span id="displayGoal">100000</span></div>
+<div>Saved: ৳<span id="savedAmount">0</span> / ৳<span id="displayGoal">0</span></div>
 <div>Today Saved: ৳<span id="todayAmount">0</span></div>
+
+<!-- 🔍 SEARCH BAR -->
+<div style="margin:15px;">
+    <input type="number" id="searchAmount" placeholder="Search amount">
+    <button onclick="searchAmount()">Search</button>
+    <button onclick="clearSearch()">Clear</button>
+</div>
 
 <div class="grid" id="grid"></div>
 
@@ -86,8 +105,8 @@ let TOTAL_GOAL = parseInt(localStorage.getItem("goal")) || 100000;
 let amounts = JSON.parse(localStorage.getItem("amounts")) || [];
 let saved = JSON.parse(localStorage.getItem("savedAmounts")) || [];
 let lastSavedIndex = null;
+let filteredIndexes = null;
 
-// Today data
 let todayData = JSON.parse(localStorage.getItem("todayData")) || {
     date:new Date().toDateString(),
     saved:0
@@ -101,7 +120,10 @@ if(todayData.date !== new Date().toDateString()){
 
 document.getElementById("goalInput").value = TOTAL_GOAL;
 
-// Generate amounts ONLY if not saved before
+function rand(min,max){
+    return Math.floor(Math.random()*((max-min)/10+1))*10+min;
+}
+
 function generateAmounts(){
     amounts=[];
     let sum=0;
@@ -115,20 +137,17 @@ function generateAmounts(){
     localStorage.setItem("amounts",JSON.stringify(amounts));
 }
 
-function rand(min,max){
-    return Math.floor(Math.random()*((max-min)/10+1))*10+min;
-}
-
 function render(){
     const grid=document.getElementById("grid");
     grid.innerHTML="";
     amounts.forEach((v,i)=>{
+        if(filteredIndexes && !filteredIndexes.includes(i)) return;
         const d=document.createElement("div");
         d.className="cell";
         d.textContent=v;
         if(saved.includes(i)) d.classList.add("saved");
         d.onclick=()=>{
-            if(saved.includes(i))return;
+            if(saved.includes(i)) return;
             saved.push(i);
             lastSavedIndex=i;
             todayData.saved+=v;
@@ -149,8 +168,24 @@ function updateUI(){
     render();
 }
 
+function searchAmount(){
+    const v=parseInt(document.getElementById("searchAmount").value);
+    if(isNaN(v)) return alert("Enter number");
+    filteredIndexes=amounts.map((x,i)=>x===v?i:null).filter(x=>x!==null);
+    if(filteredIndexes.length===0){
+        alert("Amount not found");
+        filteredIndexes=null;
+    }
+    updateUI();
+}
+
+function clearSearch(){
+    filteredIndexes=null;
+    updateUI();
+}
+
 function resetSavings(){
-    if(!confirm("Reset all?"))return;
+    if(!confirm("Reset all?")) return;
     saved=[];
     todayData.saved=0;
     localStorage.removeItem("savedAmounts");
@@ -159,10 +194,10 @@ function resetSavings(){
 }
 
 function undoLast(){
-    if(lastSavedIndex===null)return alert("Nothing to undo");
+    if(lastSavedIndex===null) return alert("Nothing to undo");
     saved=saved.filter(i=>i!==lastSavedIndex);
     todayData.saved-=amounts[lastSavedIndex];
-    if(todayData.saved<0)todayData.saved=0;
+    if(todayData.saved<0) todayData.saved=0;
     localStorage.setItem("savedAmounts",JSON.stringify(saved));
     localStorage.setItem("todayData",JSON.stringify(todayData));
     lastSavedIndex=null;
@@ -174,9 +209,10 @@ function toggleTheme(){
 }
 
 function updateGoal(){
-    TOTAL_GOAL=parseInt(document.getElementById("goalInput").value);
-    if(TOTAL_GOAL<1000)return alert("Min 1000");
-    localStorage.setItem("goal",TOTAL_GOAL);
+    const g=parseInt(document.getElementById("goalInput").value);
+    if(isNaN(g)||g<1000) return alert("Min 1000");
+    TOTAL_GOAL=g;
+    localStorage.setItem("goal",g);
     saved=[];
     todayData.saved=0;
     localStorage.removeItem("savedAmounts");
