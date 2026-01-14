@@ -2,275 +2,190 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Money Saving Box – Weighted Amounts</title>
+<title>Money Saving Box – Fixed</title>
 <style>
-  body {
-      font-family: 'Arial', sans-serif;
-      background: #f4f1ec;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-      transition: background 0.3s, color 0.3s;
-  }
-  body.dark {
-      background: #1e1e1e;
-      color: #f4f1ec;
-  }
-  h1 { margin-bottom: 5px; color: #3a1f12; }
-  body.dark h1, body.dark .goal-container, body.dark .total, body.dark #todaySaved { color: #f4f1ec; }
-  .goal-container { font-size: 18px; margin-bottom: 15px; }
-  .progress-container {
-      width: 90%; max-width: 600px; margin: 10px auto 10px;
-      background: #ddd; border-radius: 20px; overflow: hidden; height: 20px;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-  }
-  .progress-bar {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #4caf50, #81c784);
-      transition: width 0.5s ease;
-  }
-  .total { margin-bottom: 10px; font-weight: bold; }
-  #todaySaved { margin-bottom: 20px; font-weight: bold; }
-
-  /* Flex container for grid + buttons */
-  .main-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-      flex-wrap: wrap;
-  }
-
-  .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-      gap: 8px; max-width: 600px; background: #6b3e26;
-      padding: 15px; border-radius: 10px;
-  }
-  body.dark .grid { background: #333; }
-
-  .cell {
-      background: #fff; border: 2px solid #3a1f12; padding: 15px 5px;
-      cursor: pointer; font-weight: bold; border-radius: 5px; user-select: none;
-      transition: 0.3s; position: relative; box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-  }
-  body.dark .cell {
-      background: #555; color: #f4f1ec; border-color: #aaa;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  }
-  .cell:hover { transform: scale(1.05); background: #f0e6dc; }
-  body.dark .cell:hover { background: #666; }
-  .cell.saved {
-      background: #c0392b !important; color: white; text-decoration: none;
-      cursor: not-allowed; transform: scale(1); box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-  }
-
-  /* Button column */
-  .button-column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-      min-width: 150px;
-  }
-  .button-column button { width: 100%; }
-
-  button {
-      padding: 10px 20px; font-size: 16px; cursor: pointer;
-      border: none; background: #b71c1c; color: white; border-radius: 5px;
-      transition: 0.3s;
-  }
-  button:hover { background: #8e0000; }
-
-  input[type="number"] { padding: 8px; font-size: 16px; border-radius: 5px;
-      border: 1px solid #ccc; margin: 5px; width: 150px; }
-  #searchContainer { margin-bottom: 15px; }
-
-  /* Instruction box */
-  #instructions {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 15px;
-      max-width: 300px;
-      color: #333;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      text-align: center;
-  }
-  body.dark #instructions {
-      background: #444;
-      color: #f4f1ec;
-      box-shadow: 0 2px 5px rgba(255,255,255,0.2);
-  }
-
-  @media print {
-      body { background: white; padding: 0; }
-      .grid { background: none; padding: 0; gap: 5px; }
-      .cell { box-shadow: none; border: 1px solid #000; padding: 10px; transform: none !important; }
-      button, .progress-container, .goal-container, .total, #searchContainer, #themeToggle, #goalInput, #todaySaved, #instructions { display: none; }
-  }
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f1ec;
+    padding:20px;
+    text-align:center;
+    transition:.3s;
+}
+body.dark{background:#1e1e1e;color:#f4f1ec;}
+h1{color:#3a1f12}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
+    gap:8px;
+    max-width:600px;
+    margin:auto;
+    background:#6b3e26;
+    padding:15px;
+    border-radius:10px;
+}
+.cell{
+    background:#fff;
+    border:2px solid #3a1f12;
+    padding:15px 5px;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:5px;
+}
+.cell.saved{
+    background:#c0392b;
+    color:white;
+    cursor:not-allowed;
+}
+.progress-container{
+    width:90%;
+    max-width:600px;
+    margin:10px auto;
+    background:#ddd;
+    height:20px;
+    border-radius:20px;
+}
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#4caf50,#81c784);
+    border-radius:20px;
+}
+button{
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+    border:none;
+    background:#b71c1c;
+    color:white;
+    border-radius:5px;
+}
 </style>
 </head>
 <body>
 
 <h1>💰 Money Saving Box</h1>
 
-<div class="goal-container">
-  Goal: ৳<input type="number" id="goalInput" value="100000" min="1000" step="1000">
-  <button onclick="updateGoal()">Set Goal</button>
-</div>
+Goal: ৳<input type="number" id="goalInput" value="100000">
+<button onclick="updateGoal()">Set Goal</button>
 
-<!-- Main Goal Progress -->
 <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<div class="total">
-    Saved: ৳<span id="savedAmount">0</span> / ৳<span id="displayGoal">100000</span>
-</div>
+<div>Saved: ৳<span id="savedAmount">0</span> / ৳<span id="displayGoal">100000</span></div>
+<div>Today Saved: ৳<span id="todayAmount">0</span></div>
 
-<div id="todaySaved">
-    Today Total Saved: ৳<span id="todayAmount">0</span>
-</div>
+<div class="grid" id="grid"></div>
 
-<div id="searchContainer">
-    <input type="number" id="searchAmount" placeholder="Search Amount">
-    <button onclick="searchAmount()">Search</button>
-</div>
-
-<!-- Flex container: grid + buttons -->
-<div class="main-container">
-    <div class="grid" id="grid"></div>
-    <div class="button-column">
-        <button onclick="resetSavings()">Reset</button>
-        <button onclick="undoLast()">Undo Last</button>
-        <button id="themeToggle" onclick="toggleTheme()">Toggle Dark/Light Mode</button>
-        <button onclick="printSheet()">Print Sheet</button>
-
-        <!-- Instructions box below buttons -->
-        <div id="instructions">
-            <strong>How to use / What to do?</strong><br>
-            Keep your money in a home bank (like a mud bank or plastic bank) and select the amount in this website which you have saved in your bank.
-        </div>
-    </div>
-</div>
+<button onclick="undoLast()">Undo</button>
+<button onclick="resetSavings()">Reset</button>
+<button onclick="toggleTheme()">Dark / Light</button>
 
 <script>
-let TOTAL_GOAL = 100000;
-let amounts = [];
+let TOTAL_GOAL = parseInt(localStorage.getItem("goal")) || 100000;
+let amounts = JSON.parse(localStorage.getItem("amounts")) || [];
 let saved = JSON.parse(localStorage.getItem("savedAmounts")) || [];
-let filteredIndexes = null;
 let lastSavedIndex = null;
 
-// DAILY TRACKING
-let todayData = JSON.parse(localStorage.getItem("todayData")) || { date: new Date().toDateString(), saved: 0 };
+// Today data
+let todayData = JSON.parse(localStorage.getItem("todayData")) || {
+    date:new Date().toDateString(),
+    saved:0
+};
+
 if(todayData.date !== new Date().toDateString()){
     todayData.date = new Date().toDateString();
     todayData.saved = 0;
-    localStorage.setItem("todayData", JSON.stringify(todayData));
+    localStorage.setItem("todayData",JSON.stringify(todayData));
 }
-function updateTodayAmount(){ document.getElementById("todayAmount").textContent = todayData.saved; }
 
-// GRID GENERATION – WEIGHTED AMOUNTS
-function generateAmounts() {
-    amounts = [];
-    let sum = 0;
-    while (sum < TOTAL_GOAL) {
-        let value;
-        let r = Math.random();
-        if (r < 0.7) { value = Math.floor(Math.random() * ((200-10)/10 +1))*10 + 10; }
-        else if (r < 0.9) { value = Math.floor(Math.random() * ((350-210)/10 +1))*10 + 210; }
-        else { value = Math.floor(Math.random() * ((500-360)/10 +1))*10 + 360; }
-        if (sum + value > TOTAL_GOAL) value = TOTAL_GOAL - sum;
-        amounts.push(value);
-        sum += value;
+document.getElementById("goalInput").value = TOTAL_GOAL;
+
+// Generate amounts ONLY if not saved before
+function generateAmounts(){
+    amounts=[];
+    let sum=0;
+    while(sum<TOTAL_GOAL){
+        let r=Math.random();
+        let v=r<0.7?rand(10,200):r<0.9?rand(210,350):rand(360,500);
+        if(sum+v>TOTAL_GOAL) v=TOTAL_GOAL-sum;
+        amounts.push(v);
+        sum+=v;
     }
+    localStorage.setItem("amounts",JSON.stringify(amounts));
 }
 
-// RENDER GRID
-function renderGrid() {
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
-    amounts.forEach((value,index)=>{
-        if(filteredIndexes && !filteredIndexes.includes(index)) return;
-        const div=document.createElement("div");
-        div.className="cell";
-        div.textContent=value;
-        if(saved.includes(index)) div.classList.add("saved");
-        div.onclick=()=>{
-            if(!saved.includes(index)){
-                saved.push(index);
-                lastSavedIndex=index;
-                todayData.saved += value;
-                localStorage.setItem("savedAmounts",JSON.stringify(saved));
-                localStorage.setItem("todayData",JSON.stringify(todayData));
-                updateUI();
-                div.classList.add("saved");
-                div.style.transform="scale(1.1)";
-                setTimeout(()=>div.style.transform="scale(1)",200);
-                filteredIndexes=null;
-                updateUI();
-            }
+function rand(min,max){
+    return Math.floor(Math.random()*((max-min)/10+1))*10+min;
+}
+
+function render(){
+    const grid=document.getElementById("grid");
+    grid.innerHTML="";
+    amounts.forEach((v,i)=>{
+        const d=document.createElement("div");
+        d.className="cell";
+        d.textContent=v;
+        if(saved.includes(i)) d.classList.add("saved");
+        d.onclick=()=>{
+            if(saved.includes(i))return;
+            saved.push(i);
+            lastSavedIndex=i;
+            todayData.saved+=v;
+            localStorage.setItem("savedAmounts",JSON.stringify(saved));
+            localStorage.setItem("todayData",JSON.stringify(todayData));
+            updateUI();
         };
-        grid.appendChild(div);
+        grid.appendChild(d);
     });
 }
 
-// UPDATE UI
-function updateUI() {
-    const savedTotal = saved.reduce((sum,i)=>sum+amounts[i],0);
-    document.getElementById("savedAmount").textContent = savedTotal;
-    document.getElementById("displayGoal").textContent = TOTAL_GOAL;
-    document.getElementById("progressBar").style.width = (savedTotal/TOTAL_GOAL*100)+"%";
-    renderGrid();
-    updateTodayAmount();
+function updateUI(){
+    const total=saved.reduce((s,i)=>s+amounts[i],0);
+    document.getElementById("savedAmount").textContent=total;
+    document.getElementById("displayGoal").textContent=TOTAL_GOAL;
+    document.getElementById("todayAmount").textContent=todayData.saved;
+    document.getElementById("progressBar").style.width=(total/TOTAL_GOAL*100)+"%";
+    render();
 }
 
-// RESET / UNDO / PRINT / SEARCH / THEME
 function resetSavings(){
-    if(confirm("Reset all savings?")){
-        saved=[]; lastSavedIndex=null; todayData.saved=0;
-        localStorage.removeItem("savedAmounts");
-        localStorage.setItem("todayData",JSON.stringify(todayData));
-        updateUI();
-    }
-}
-function undoLast(){
-    if(lastSavedIndex===null){alert("No action to undo."); return;}
-    const idx=saved.indexOf(lastSavedIndex);
-    if(idx!==-1){
-        todayData.saved -= amounts[lastSavedIndex];
-        if(todayData.saved <0) todayData.saved =0;
-        saved.splice(idx,1);
-        localStorage.setItem("savedAmounts",JSON.stringify(saved));
-        localStorage.setItem("todayData",JSON.stringify(todayData));
-        lastSavedIndex=null;
-        updateUI();
-        alert("Last action undone!");
-    }
-}
-function printSheet(){ window.print(); }
-function searchAmount(){
-    const val=parseInt(document.getElementById("searchAmount").value);
-    if(isNaN(val)){alert("Enter valid number"); return;}
-    filteredIndexes=amounts.reduce((arr,v,i)=>{ if(v===val) arr.push(i); return arr; },[]);
-    if(filteredIndexes.length===0){alert("Amount not found"); filteredIndexes=null;}
-    updateUI();
-}
-function toggleTheme(){ document.body.classList.toggle("dark"); }
-
-// UPDATE GOAL
-function updateGoal(){
-    const input=parseInt(document.getElementById("goalInput").value);
-    if(isNaN(input) || input<1000){alert("Enter 1000 or higher"); return;}
-    TOTAL_GOAL=input; saved=[]; todayData.saved=0;
+    if(!confirm("Reset all?"))return;
+    saved=[];
+    todayData.saved=0;
     localStorage.removeItem("savedAmounts");
     localStorage.setItem("todayData",JSON.stringify(todayData));
-    generateAmounts(); updateUI();
+    updateUI();
+}
+
+function undoLast(){
+    if(lastSavedIndex===null)return alert("Nothing to undo");
+    saved=saved.filter(i=>i!==lastSavedIndex);
+    todayData.saved-=amounts[lastSavedIndex];
+    if(todayData.saved<0)todayData.saved=0;
+    localStorage.setItem("savedAmounts",JSON.stringify(saved));
+    localStorage.setItem("todayData",JSON.stringify(todayData));
+    lastSavedIndex=null;
+    updateUI();
+}
+
+function toggleTheme(){
+    document.body.classList.toggle("dark");
+}
+
+function updateGoal(){
+    TOTAL_GOAL=parseInt(document.getElementById("goalInput").value);
+    if(TOTAL_GOAL<1000)return alert("Min 1000");
+    localStorage.setItem("goal",TOTAL_GOAL);
+    saved=[];
+    todayData.saved=0;
+    localStorage.removeItem("savedAmounts");
+    generateAmounts();
+    updateUI();
 }
 
 // INIT
-generateAmounts();
+if(amounts.length===0) generateAmounts();
 updateUI();
 </script>
 
